@@ -1,0 +1,42 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+        form {
+            background-color: #efeffa;
+            padding: 20px;
+            margin: 0 auto;
+            width: 540px;
+            font: 16px sans-serif;
+            border-radius: 10px;
+        }
+        br {margin-bottom: 20px;
+        }
+    </style>
+        <h1>Registration Under Construction</h1> <br>
+        <h1>Register to Build-a-Blog!</h1>
+        <form action="/register" method="post">
+            <table>
+                <tr>
+                    <td><label for="email">Email</label></td>
+                    <td>
+                        <input name="email" type="email" value="{{ email }}">
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                    <td>
+                        <input name="password" type="password">
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="verify">Verify Password</label></td>
+                    <td>
+                        <input name="verify" type="password">
+                    </td>
+                </tr>
+            </table>
+            <input type="submit" value="Register">
+        </form>
+{% endblock %}
