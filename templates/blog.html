@@ -2,14 +2,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Main Blog Page Under Construction</h1>
-
 <h1>Blog Post</h1>
        
        {% if blog | length == 0 %}
        <p>No Blogs Entered Yet</p>
        {% else %}
-        
            <ul>
                {% for blogs in blogs %}
                <li>{{blog.title, blog.body}}

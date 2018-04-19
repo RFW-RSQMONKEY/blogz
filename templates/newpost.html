@@ -2,16 +2,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>New Post Page Under Construction</h1>
-<form method='post'>
-        <label>
-            Create a New Blog Post:
-            <input type= 'text' name='title' /><br><br>
-            <input type= 'textarea' name= 'body' /><br><br>
-            <input type= 'submit' value = 'Add Blog Post' />
-        </label>
-    </form>
+<style>
+    form {
+        background-color: #efeffa;
+        padding: 20px;
+        margin: 0 auto;
+        width: 540px;
+        font: 16px sans-serif;
+        border-radius: 10px;
+    }
+    br {margin-bottom: 20px;
+    }
+</style>
+    <h1>Create a New Blog Post</h1>
+<form action = "/blog", method='POST'>
+        <label> Create a New Blog Post: </label>
+        <br>
+    
+        <label for="title">Enter the Blog Title</label>
+        <input type="text" name="title" value="{{ title }}">
+        <br>
 
-<!-- ## RETURN FLASH MESSAGE - Yay your did it! ## -->
-   
+        <label for="body">Enter Text for Blog</label>
+        <textarea name="body" rows="10" cols="30"></textarea>
+        <br>
+
+        <label for="submit"> Submit Blog Post </label>
+        <input type= 'submit' value = 'Add Blog Post' />
+        <br>
+</form>
+
 {% endblock %}
