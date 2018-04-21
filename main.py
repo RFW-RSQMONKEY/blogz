@@ -29,7 +29,7 @@ class User(db.Model):
     password = db.Column(db.String(120))
     blogs = db.relationship('Blog', backref='owner')
 
-    def __init__(self, email, password, owner):
+    def __init__(self, email, password):
         self.email = email
         self.password = password
         
@@ -37,8 +37,6 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.email
 
-def get_current_blogs_list():
-    return Blog.query.filter_by(blog.id).all()
 
 @app.before_request
 def require_login():
@@ -65,14 +63,15 @@ def login():
 
 @app.route("/register", methods = ['POST' , 'GET'])
 def register():
-    existing_user = ""
+    
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         verify = request.form['verify']
-        if existing_user == User.query.filter_by(email=email).first():
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
             flash("Account with this email already exists")
-            return redirect ('/register')
+            return render_template('register.html')
 
         if not existing_user:
             new_user = User(email, password)
@@ -139,21 +138,29 @@ def index():
 
 
 @app.route('/blog', methods=['POST', 'GET'])
-def blog():
-    if request.method == 'POST':
-        title =title
-        
+def get_current_blogs_list():
+    get_blog_link = request.args.get('id')
+    if get_blog_link:
+        request_id = request.args.get('id')
+        blog_post = Blog.query.filter_by(id=request_id).first()
+        return render_template('blogpost.html', post=blog_post)
+    return render_template ('blog.html', posts=Blog.query.all())
+
+
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
-        new_blog = Blog(title, body)
+        owner = User.query.filter_by(email = session['email']).first()
+        new_blog = Blog(title, body, owner)
         db.session.add(new_blog)
         db.session.commit()
-        return redirect ("/")
+        new_blog_id = new_blog.id
+        return redirect ('/blog?id=' + str(new_blog_id))
     else:
         return render_template('newpost.html')
+
 
 
 @app.route("/logout")

@@ -4,16 +4,13 @@
 {% block content %}
 <h1>Blog Post</h1>
        
-       {% if blog | length == 0 %}
+       {% if posts | length == 0 %}
        <p>No Blogs Entered Yet</p>
        {% else %}
            <ul>
-               {% for blogs in blogs %}
-               <li>{{blog.title, blog.body}}
-                   <form method="POST" action="">
-                       <input type="hidden" name="blog-id" value="{{blog.id}}" />
-                 
-                   </form>
+               {% for post in posts %}
+               <li><a href= "/blog?id={{post.id}}">{{ post.title }}</a>
+                <p> {{ post.body }} </p>
                </li>
                {% endfor %}
            </ul>

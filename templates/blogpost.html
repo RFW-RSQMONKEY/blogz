@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    form {
+        background-color: #efeffa;
+        padding: 20px;
+        margin: 0 auto;
+        width: 540px;
+        font: 16px sans-serif;
+        border-radius: 10px;
+    }
+    p.error { color: red ; 
+    }     
+    br {margin-bottom: 20px;
+    }
+</style>
+
+<h1>{{post.title}}</h1>
+<p>{{ post.body }}</p>
+
+{% endblock %}
