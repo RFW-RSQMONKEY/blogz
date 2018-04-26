@@ -20,38 +20,31 @@ class Blog(db.Model):
         self.body = body
         self.owner = owner
 
-    def __repr__(self):
-        return '<Blog %r>' % self.name
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique = True)
+    user_name = db.Column(db.String(120), unique = True)
     password = db.Column(db.String(120))
     blogs = db.relationship('Blog', backref='owner')
 
-    def __init__(self, email, password):
-        self.email = email
+    def __init__(self, user_name, password):
+        self.user_name = user_name
         self.password = password
         
-    
-    def __repr__(self):
-        return '<User %r>' % self.email
-
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'register']
-    if request.endpoint not in allowed_routes and 'email' not in session:
+    allowed_routes = ['login', 'register', 'index', 'blog']
+    if request.endpoint not in allowed_routes and 'user_name' not in session:
         return redirect('/login')
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
+        user_name = request.form['user_name']
         password = request.form['password']
-        user=User.query.filter_by(email=email).first()
+        user=User.query.filter_by(user_name=user_name).first()
         if user and user.password == password:
-            session['email'] = email
+            session['user_name'] = user_name
             flash ("Logged In")
             
             return redirect ('/') 
@@ -65,39 +58,39 @@ def login():
 def register():
     
     if request.method == 'POST':
-        email = request.form['email']
+        user_name = request.form['user_name']
         password = request.form['password']
         verify = request.form['verify']
-        existing_user = User.query.filter_by(email=email).first()
+        existing_user = User.query.filter_by(user_name=user_name).first()
         if existing_user:
-            flash("Account with this email already exists")
+            flash("Account with this User Name already exists")
             return render_template('register.html')
 
         if not existing_user:
-            new_user = User(email, password)
+            new_user = User(user_name, password)
             db.session.add(new_user)
             db.session.commit()
-            session['email'] = email
+            session['user_name'] = user_name
             return redirect ('/')
 
-        if " " in email:
-            flash("Spaces are not allowed in the email")       
+        if " " in user_name:
+            flash("Spaces are not allowed in the user_name")       
     
-        if len(email) <3:
-            flash("Email must be longer than 3 and less than 20 characters") 
+        if len(user_name) <3:
+            flash("user_name must be longer than 3 and less than 20 characters") 
  
-        if len(email) >20:
-            flash("Email must be longer than 3 and less than 20 characters")    
+        if len(user_name) >20:
+            flash("user_name must be longer than 3 and less than 20 characters")    
         
-        for char in email:
-            if email.count ("@") < 1:
-                flash ("The email must contain (1) @ and (1) . to be valid")
+        for char in user_name:
+            if user_name.count ("@") < 1:
+                flash ("The user_name must contain (1) @ and (1) . to be valid")
             
-            elif email.count ("@") > 1:
-                flash = "The email must contain (1) @ and (1) . to be valid"
+            elif user_name.count ("@") > 1:
+                flash = "The user_name must contain (1) @ and (1) . to be valid"
     
             else:
-                email=""
+                user_name=""
     #password logic
         if password == "":
             flash ("Password must be populated")
@@ -121,12 +114,12 @@ def register():
         if verify != password:
             flash ("Passwords don't match")
         
-#    all_error_messages_combined = (username_logic_error + password_logic_error + verify_logic_error + email_logic_error)
+#    all_error_messages_combined = (username_logic_error + password_logic_error + verify_logic_error + user_name_logic_error)
         if all_error_messages_combined == "":
-            return render_template('login.html', email=email)
+            return render_template('login.html', user_name=user_name)
         else:
             return render_template('register.html', 
-                email=email, 
+                user_name=user_name, 
                 password=password,
                 verify=verify) 
     return render_template('register.html')
@@ -134,16 +127,24 @@ def register():
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    return render_template('blog.html')  
+    get_users = User.query.all()
+    return render_template ('index.htnl', blog_users=get_users)
 
 
 @app.route('/blog', methods=['POST', 'GET'])
 def get_current_blogs_list():
-    get_blog_link = request.args.get('id')
-    if get_blog_link:
+    if request.args.get('id')
         request_id = request.args.get('id')
         blog_post = Blog.query.filter_by(id=request_id).first()
         return render_template('blogpost.html', post=blog_post)
+    
+    if request.args.get('user')
+        user_name = request.args.get('user')
+        user_guy = user.query.filter_by(user_name=user_name).first()
+        user_id = user_guy.id
+        posts = blog.query.filter_by(owner.id=user.id) 
+        return render_template ('blog.html', posts=posts)
+    
     return render_template ('blog.html', posts=Blog.query.all())
 
 
@@ -152,7 +153,7 @@ def newpost():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
-        owner = User.query.filter_by(email = session['email']).first()
+        owner = User.query.filter_by(user_name = session['user_name']).first()
         new_blog = Blog(title, body, owner)
         db.session.add(new_blog)
         db.session.commit()
@@ -162,10 +163,9 @@ def newpost():
         return render_template('newpost.html')
 
 
-
 @app.route("/logout")
 def logout():
-    del session['email']
+    del session['user_name']
     return redirect('/')
 
 if __name__ == '__main__':

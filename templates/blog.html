@@ -11,6 +11,7 @@
                {% for post in posts %}
                <li><a href= "/blog?id={{post.id}}">{{ post.title }}</a>
                 <p> {{ post.body }} </p>
+                <p> "written by" a href= "/blog?user={{post.user.user_name}}" </p>
                </li>
                {% endfor %}
            </ul>
