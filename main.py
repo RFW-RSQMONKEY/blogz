@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:Robb1@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:123456@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
@@ -46,11 +46,9 @@ def login():
         if user and user.password == password:
             session['user_name'] = user_name
             flash ("Logged In")
-            
-            return redirect ('/') 
+            return redirect ('/newpost') 
         else:
             flash('User password incorrect, or user does not exist', 'error')
-
     return render_template('login.html')
 
 
@@ -58,94 +56,77 @@ def login():
 def register():
     
     if request.method == 'POST':
+        error_messages = ""
         user_name = request.form['user_name']
         password = request.form['password']
         verify = request.form['verify']
         existing_user = User.query.filter_by(user_name=user_name).first()
         if existing_user:
-            flash("Account with this User Name already exists")
-            return render_template('register.html')
+            flash('Account with this User Name already exists', 'error')
+            error_messages += 'e'
 
+        if len(user_name) <3:
+            flash("The User Name must be longer than 3 and less than 20 characters", 'error')
+            error_messages += 'e' 
+ 
+        if len(user_name) >20:
+            flash("The User Name must be longer than 3 and less than 20 characters", 'error')
+            error_messages += 'e'    
+                 
+    #password logic
+        if password == "":
+            flash("Password must be populated")
+            error_messages += 'e'
+        if " " in password:
+            flash("Spaces are not allowed in the password")
+            error_messages += 'e'
+        if len(password) < 3:
+            flash("User name must be longer than 3 and less than 20 characters")
+            error_messages += 'e'
+        if len(password) >20:
+            flash("User name must be longer than 3 and less than 20 characters")
+            error_messages += 'e'
+    #verify field logic
+        if verify =="":
+            flash("Please enter password verification")
+            error_messages += 'e'
+        if " " in verify:
+            flash("Spaces are not allowed in the password")    
+            error_messages += 'e'
+        if verify != password:
+            flash("Passwords don't match")
+            error_messages += 'e'
+        if error_messages !="":
+            return render_template('register.html')    
         if not existing_user:
             new_user = User(user_name, password)
             db.session.add(new_user)
             db.session.commit()
             session['user_name'] = user_name
-            return redirect ('/')
-
-        if " " in user_name:
-            flash("Spaces are not allowed in the user_name")       
-    
-        if len(user_name) <3:
-            flash("user_name must be longer than 3 and less than 20 characters") 
- 
-        if len(user_name) >20:
-            flash("user_name must be longer than 3 and less than 20 characters")    
-        
-        for char in user_name:
-            if user_name.count ("@") < 1:
-                flash ("The user_name must contain (1) @ and (1) . to be valid")
-            
-            elif user_name.count ("@") > 1:
-                flash = "The user_name must contain (1) @ and (1) . to be valid"
-    
-            else:
-                user_name=""
-    #password logic
-        if password == "":
-            flash ("Password must be populated")
-        
-        if " " in password:
-            flash ("Spaces are not allowed in the password")
-       
-        if len(password) < 3:
-            flash ("User name must be longer than 3 and less than 20 characters")
-       
-        if len(password) >20:
-            flash ("User name must be longer than 3 and less than 20 characters")
-        
-    #verify field logic
-        if verify =="":
-            flash = "Please enter password verification"
-        
-        if " " in verify:
-            flash ("Spaces are not allowed in the password")    
-        
-        if verify != password:
-            flash ("Passwords don't match")
-        
-#    all_error_messages_combined = (username_logic_error + password_logic_error + verify_logic_error + user_name_logic_error)
-        if all_error_messages_combined == "":
-            return render_template('login.html', user_name=user_name)
-        else:
-            return render_template('register.html', 
-                user_name=user_name, 
-                password=password,
-                verify=verify) 
-    return render_template('register.html')
+            return redirect ('/') 
 
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    get_users = User.query.all()
-    return render_template ('index.htnl', blog_users=get_users)
+    users = User.query.all()
+    return render_template('index.html', blog_users=users)
 
 
 @app.route('/blog', methods=['POST', 'GET'])
 def get_current_blogs_list():
-    if request.args.get('id')
+    if request.args.get('id'):
         request_id = request.args.get('id')
         blog_post = Blog.query.filter_by(id=request_id).first()
-        return render_template('blogpost.html', post=blog_post)
+        user_guy = User.query.filter_by(id=blog_post.owner_id).first()
+        return render_template('blogpost.html', post=blog_post, user=user_guy)
     
-    if request.args.get('user')
+    if request.args.get('user'):
         user_name = request.args.get('user')
-        user_guy = user.query.filter_by(user_name=user_name).first()
+        user_guy = User.query.filter_by(user_name=user_name).first()
         user_id = user_guy.id
-        posts = blog.query.filter_by(owner.id=user.id) 
-        return render_template ('blog.html', posts=posts)
-    
-    return render_template ('blog.html', posts=Blog.query.all())
+        posts = Blog.query.filter_by(owner_id=user_id) 
+        return render_template ('blog.html', posts = posts, user=user_guy)
+    return render_template ('allblogposts.html', posts=Blog.query.all(), user=User.query.all())
 
 
 @app.route('/newpost', methods=['POST', 'GET'])

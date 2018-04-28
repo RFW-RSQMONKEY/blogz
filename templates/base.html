@@ -1,12 +1,8 @@
 <!doctype html>
 <html>
     <head>
-            <nav>
-                <a href="/blog">Main Blog Page </a> |
-                <a href="/newpost">Add a New Blog Post</a> |
-                
-            </nav> 
-        <title>{{title}}</title>
+            
+        <title>{{Blogz}}</title>
        
        <style>
             .error {
@@ -15,15 +11,23 @@
         </style>
     </head>
 <body>
+        <div style="float: left;">
+            <a href="/">Home</a> |
+            <a href="/blog">All Blog Posts</a> |
+            <a href="/newpost">Add a New Blog Post</a> 
+            <br>
+        </div>  
+    </hr>
         <div style="float: right;">                                    
             <a href="/login">Log In</a> | 
             <a href="/register">Register</a> |
             <a href="/logout">Log Out</a>
         </div>
         {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages|length != 0 %}
+            {% if messages %}
                 <ul>
                     {% for category, message in messages %}
+                        <br>
                         <li class="{{category}}">{{message}}</li>
                     {% endfor %}
                 </ul>

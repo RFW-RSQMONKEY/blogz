@@ -2,15 +2,21 @@
 
 {% block content %}
 
-{% if users %}
+
+{% if blog_users %}
+<br>
+
 <h1>Blog Users</h1>
            <ul>
-               {% for bloger in blog_users %}
-               <li><a href= "/blog?user_name={{bloger.user_name}}">{{ bloger.user_name }}</a>
+               {% for user in blog_users %}
+               <li>
+                   <a href= "/blog?user={{user.user_name}}">{{ user.user_name }}</a>
                </li>
                {% endfor %}
            </ul>
 {% else %} 
+<br>
 <p>No Users Yet!</p>     
 
+{% endif %}
 {% endblock %}
