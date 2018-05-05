@@ -55,6 +55,8 @@ def login():
 @app.route("/register", methods = ['POST' , 'GET'])
 def register():
     
+    if request.method == 'GET':
+        return render_template('register.html')
     if request.method == 'POST':
         error_messages = ""
         user_name = request.form['user_name']
@@ -104,7 +106,7 @@ def register():
             db.session.commit()
             session['user_name'] = user_name
             return redirect ('/') 
-
+    
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
